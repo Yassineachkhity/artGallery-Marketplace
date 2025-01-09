@@ -92,21 +92,35 @@ export default function Chat() {
     const sendMessage = async (e) => {
         e.preventDefault();
         if (!newMessage.trim()) return;
-
+    
+        const tempId = Date.now();
+        const tempMessage = {
+            id: tempId,
+            message: newMessage.trim(),
+            sender_id: user.id,
+            created_at: new Date().toISOString(),
+            temp: true, // Indicateur pour le message temporaire
+        };
+    
+        setMessages(prev => [...prev, tempMessage]);
+        scrollToBottom();
+        setNewMessage('');
+    
         try {
             const receiverId = user.id === adminId ? selectedUser.id : adminId;
             const response = await axiosClient.post('/messages', {
                 receiver_id: receiverId,
                 message: newMessage.trim()
             });
-            console.log('Message envoyé:', response.data); // Ajouté pour le débogage
-            setMessages(prev => [...prev, response.data]);
-            setNewMessage('');
-            scrollToBottom();
+            // Remplacer le message temporaire par le message réel du serveur
+            setMessages(prev => prev.map(msg => msg.id === tempId ? response.data : msg));
         } catch (error) {
             console.error('Error sending message:', error);
+            // Optionnel : retirer le message temporaire ou afficher une erreur
+            setMessages(prev => prev.filter(msg => msg.id !== tempId));
         }
     };
+    
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -192,7 +206,7 @@ export default function Chat() {
                         ) : (
                             messages.map((message) => (
                                 <div
-                                    key={message.id}
+                                    key={message.id || message.tempId}
                                     className={`mb-4 flex ${
                                         message.sender_id === user.id ? 'justify-end' : 'justify-start'
                                     }`}
