@@ -1,5 +1,7 @@
 <?php
+
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,4 +15,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+    
+    // Add this new route for getting all users except admin
+    Route::get('/users', function (Request $request) {
+        return \App\Models\User::where('id', '>', 1)->get(['id', 'name', 'email']);
+    });
+    
+    Route::post('/messages', [ChatController::class, 'sendMessage']);
+    Route::get('/messages/{user_id}', [ChatController::class, 'getMessages']);
+    Route::post('/messages/mark-read', [ChatController::class, 'markAsRead']);
 });

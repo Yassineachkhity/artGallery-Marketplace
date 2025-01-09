@@ -5,7 +5,7 @@ import Users from "./views/users.jsx";
 import DefaultLayout from "./components/DefaultLayout.jsx";
 import Create from "./views/Create.jsx";
 import Vision3D from "./views/Vision3D.jsx";
-import Tokens from "./views/Tokens.jsx";
+import Chat from "./views/Chat.jsx";
 import Contact from "./views/Contact.jsx";
 import Home from "./views/Home.jsx";
 
@@ -31,8 +31,8 @@ const router = createBrowserRouter([
                 element: <Vision3D />,
             },
             {
-                path: '/tokens',
-                element: <Tokens />,
+                path: '/chat',
+                element: <Chat />,
             },
             {
                 path: '/contact',
