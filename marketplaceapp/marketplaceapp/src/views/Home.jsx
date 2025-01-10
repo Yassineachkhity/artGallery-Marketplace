@@ -1,7 +1,26 @@
+import React, { useState } from 'react';
 import { useStateContext } from '../context/ContextProvider';
+import { useArtworkContext } from '../context/ArtworkContext';
+import ArtworkCard from '../components/ArtworkCard';
+import ArtworkForm from '../components/ArtworkForm';
 
 export default function Home() {
     const { user } = useStateContext();
+    const { artworks, loading, error, addArtwork, updateArtwork, deleteArtwork } = useArtworkContext();
+
+    const [showForm, setShowForm] = useState(false);
+    const [editArtwork, setEditArtwork] = useState(null);
+
+    const handleEdit = (artwork) => {
+        setEditArtwork(artwork);
+        setShowForm(true);
+    };
+
+    const handleDelete = (id) => {
+        if (window.confirm('Are you sure you want to delete this artwork?')) {
+            deleteArtwork(id);
+        }
+    };
 
     return (
         <>
@@ -23,99 +42,45 @@ export default function Home() {
                 </div>
             </div>
 
-            {/* Art Cards Section */}
+            {/* Artworks Section */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
-                    {/* Art Card 1 */}
-                    <div className="group relative">
-                        <div className="w-full min-h-80 bg-gray-200 rounded-md overflow-hidden group-hover:opacity-75">
-                            <img
-                                src="https://images.unsplash.com/photo-1567359781514-3b964e2b04d6"
-                                alt="Abstract Art"
-                                className="w-full h-full object-center object-cover"
-                            />
-                        </div>
-                        <div className="mt-4 flex justify-between">
-                            <div>
-                                <h3 className="text-sm text-gray-700">
-                                    <a href="#" className="font-medium">
-                                        Abstract Dreams
-                                    </a>
-                                </h3>
-                                <p className="mt-1 text-sm text-gray-500">by John Doe</p>
-                            </div>
-                            <p className="text-sm font-medium text-gray-900">0.5 ETH</p>
-                        </div>
-                        <div className="mt-4 flex justify-between space-x-2">
-                            <button className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">
-                                Buy Now
-                            </button>
-                            <a href="#" className="text-indigo-600 hover:text-indigo-500 flex items-center">
-                                See Details
-                            </a>
-                        </div>
-                    </div>
-
-                    {/* Art Card 2 */}
-                    <div className="group relative">
-                        <div className="w-full min-h-80 bg-gray-200 rounded-md overflow-hidden group-hover:opacity-75">
-                            <img
-                                src="https://images.unsplash.com/photo-1549490349-8643362247b5"
-                                alt="Digital Landscape"
-                                className="w-full h-full object-center object-cover"
-                            />
-                        </div>
-                        <div className="mt-4 flex justify-between">
-                            <div>
-                                <h3 className="text-sm text-gray-700">
-                                    <a href="#" className="font-medium">
-                                        Digital Landscape
-                                    </a>
-                                </h3>
-                                <p className="mt-1 text-sm text-gray-500">by Jane Smith</p>
-                            </div>
-                            <p className="text-sm font-medium text-gray-900">0.8 ETH</p>
-                        </div>
-                        <div className="mt-4 flex justify-between space-x-2">
-                            <button className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">
-                                Buy Now
-                            </button>
-                            <a href="#" className="text-indigo-600 hover:text-indigo-500 flex items-center">
-                                See Details
-                            </a>
-                        </div>
-                    </div>
-
-                    {/* Art Card 3 */}
-                    <div className="group relative">
-                        <div className="w-full min-h-80 bg-gray-200 rounded-md overflow-hidden group-hover:opacity-75">
-                            <img
-                                src="https://images.unsplash.com/photo-1634986666676-ec8fd927c23d"
-                                alt="3D Sculpture"
-                                className="w-full h-full object-center object-cover"
-                            />
-                        </div>
-                        <div className="mt-4 flex justify-between">
-                            <div>
-                                <h3 className="text-sm text-gray-700">
-                                    <a href="#" className="font-medium">
-                                        3D Sculpture
-                                    </a>
-                                </h3>
-                                <p className="mt-1 text-sm text-gray-500">by Mike Johnson</p>
-                            </div>
-                            <p className="text-sm font-medium text-gray-900">1.2 ETH</p>
-                        </div>
-                        <div className="mt-4 flex justify-between space-x-2">
-                            <button className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">
-                                Buy Now
-                            </button>
-                            <a href="#" className="text-indigo-600 hover:text-indigo-500 flex items-center">
-                                See Details
-                            </a>
-                        </div>
-                    </div>
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold">Artworks</h2>
+                    {user && user.id === 1 && (
+                        <button
+                            onClick={() => { setEditArtwork(null); setShowForm(true); }}
+                            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+                        >
+                            Add New Artwork
+                        </button>
+                    )}
                 </div>
+
+                {showForm && (
+                    <ArtworkForm
+                        onClose={() => setShowForm(false)}
+                        onSubmit={editArtwork ? updateArtwork : addArtwork}
+                        existingData={editArtwork}
+                    />
+                )}
+
+                {loading ? (
+                    <p>Loading artworks...</p>
+                ) : error ? (
+                    <p className="text-red-500">Error: {JSON.stringify(error)}</p>
+                ) : (
+                    <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
+                        {artworks.map(art => (
+                            <ArtworkCard
+                                key={art.id}
+                                artwork={art}
+                                isAdmin={user && user.id === 1}
+                                onEdit={() => handleEdit(art)}
+                                onDelete={() => handleDelete(art.id)}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
         </>
     );

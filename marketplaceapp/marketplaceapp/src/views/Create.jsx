@@ -1,7 +1,5 @@
 import React, { useState, useRef } from 'react';
-import axios from 'axios';
-
-const BACKEND_URL = 'http://localhost:8000'
+import axiosClient from '../axiosClient';
 
 const Create = () => {
     const [prompt, setPrompt] = useState('');
@@ -72,8 +70,8 @@ const Create = () => {
         setImage(null);
 
         try {
-            const response = await axios.post(`${BACKEND_URL}/api/generate-image/text`, { prompt }, {
-                responseType: 'blob', // To handle binary images
+            const response = await axiosClient.post('/generate-image/text', { prompt }, {
+                responseType: 'blob',
             });
             const imageUrl = URL.createObjectURL(response.data);
             setImage(imageUrl);
@@ -96,8 +94,8 @@ const Create = () => {
         setImage(null);
 
         try {
-            const response = await axios.post('/api/generate-image/text', { prompt: transcript }, {
-                responseType: 'blob', // To handle binary images
+            const response = await axiosClient.post('/generate-image/text', { prompt: transcript }, {
+                responseType: 'blob',
             });
             const imageUrl = URL.createObjectURL(response.data);
             setImage(imageUrl);
