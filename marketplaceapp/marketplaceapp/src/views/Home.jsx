@@ -1,11 +1,13 @@
+// src/pages/Home.jsx
 import React, { useState } from 'react';
 import { useStateContext } from '../context/ContextProvider';
 import { useArtworkContext } from '../context/ArtworkContext';
 import ArtworkCard from '../components/ArtworkCard';
 import ArtworkForm from '../components/ArtworkForm';
+import {Palette} from 'lucide-react';
 
 export default function Home() {
-    const { user } = useStateContext();
+    const { user, isAdmin } = useStateContext(); // Destructure isAdmin from StateContext
     const { artworks, loading, error, addArtwork, updateArtwork, deleteArtwork } = useArtworkContext();
 
     const [showForm, setShowForm] = useState(false);
@@ -16,9 +18,13 @@ export default function Home() {
         setShowForm(true);
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this artwork?')) {
-            deleteArtwork(id);
+            try {
+                await deleteArtwork(id);
+            } catch (error) {
+                console.error('Error deleting artwork:', error);
+            }
         }
     };
 
@@ -46,7 +52,7 @@ export default function Home() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold">Artworks</h2>
-                    {user && user.id === 1 && (
+                    {isAdmin && (
                         <button
                             onClick={() => { setEditArtwork(null); setShowForm(true); }}
                             className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
@@ -65,7 +71,15 @@ export default function Home() {
                 )}
 
                 {loading ? (
-                    <p>Loading artworks...</p>
+                    <div className="flex items-center justify-center min-h-[400px]">
+                        <div className="relative w-20 h-20">
+                            <div className="absolute top-0 left-0 w-full h-full border-4 border-indigo-200 rounded-full animate-ping"></div>
+                            <div className="absolute top-0 left-0 w-full h-full border-4 border-indigo-600 rounded-full animate-pulse"></div>
+                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-indigo-600">
+                                <Palette className="w-8 h-8 animate-bounce" />
+                            </div>
+                        </div>
+                    </div>
                 ) : error ? (
                     <p className="text-red-500">Error: {JSON.stringify(error)}</p>
                 ) : (
@@ -74,9 +88,9 @@ export default function Home() {
                             <ArtworkCard
                                 key={art.id}
                                 artwork={art}
-                                isAdmin={user && user.id === 1}
-                                onEdit={() => handleEdit(art)}
-                                onDelete={() => handleDelete(art.id)}
+                                isAdmin={isAdmin}
+                                onEdit={handleEdit}
+                                onDelete={handleDelete}
                             />
                         ))}
                     </div>

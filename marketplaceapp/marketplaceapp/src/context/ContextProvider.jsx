@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+// src/context/ContextProvider.jsx
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import axiosClient from '../axiosClient';
 
 const StateContext = createContext({
     user: null,
@@ -7,12 +9,14 @@ const StateContext = createContext({
     setUser: () => {},
     setToken: () => {},
     setDarkMode: () => {},
+    isAdmin: false, // Add isAdmin to the context
 });
 
 export const ContextProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, _setToken] = useState(localStorage.getItem('ACCESS_TOKEN'));
     const [darkMode, setDarkMode] = useState(localStorage.getItem('DARK_MODE') === 'true');
+    const [isAdmin, setIsAdmin] = useState(false); // State to track admin status
 
     useEffect(() => {
         if (darkMode) {
@@ -23,7 +27,7 @@ export const ContextProvider = ({ children }) => {
         localStorage.setItem('DARK_MODE', darkMode);
     }, [darkMode]);
 
-    const setToken = (token) => {
+    const setTokenFunc = (token) => {
         _setToken(token);
         if (token) {
             localStorage.setItem('ACCESS_TOKEN', token);
@@ -32,14 +36,35 @@ export const ContextProvider = ({ children }) => {
         }
     };
 
+    // Function to fetch user data
+    const fetchUser = async () => {
+        try {
+            const response = await axiosClient.get('/user');
+            setUser(response.data);
+            setIsAdmin(response.data.id === 1); // Assuming user with ID 1 is admin
+        } catch (error) {
+            console.error('Error fetching user:', error);
+            setUser(null);
+            setIsAdmin(false);
+            setTokenFunc(null);
+        }
+    };
+
+    useEffect(() => {
+        if (token) {
+            fetchUser();
+        }
+    }, [token]);
+
     return (
         <StateContext.Provider value={{
             user,
             token,
-            setUser,
-            setToken,
             darkMode,
+            setUser,
+            setToken: setTokenFunc,
             setDarkMode,
+            isAdmin, // Provide isAdmin to context consumers
         }}>
             {children}
         </StateContext.Provider>

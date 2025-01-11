@@ -15,34 +15,6 @@ export const ArtworkProvider = ({ children }) => {
     const [artworks, setArtworks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [user, setUser] = useState(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-    // Function to Fetch User
-    const checkUser = async () => {
-        try {
-            const token = localStorage.getItem('TOKEN');
-            if (!token) {
-                setUser(null);
-                setIsAuthenticated(false);
-                return;
-            }
-
-            const response = await axiosClient.get('/user');
-            setUser(response.data);
-            setIsAuthenticated(true);
-        } catch (err) {
-            console.error('Error fetching user:', err);
-            setUser(null);
-            setIsAuthenticated(false);
-            localStorage.removeItem('TOKEN');
-        }
-    };
-
-    // Function to Check if User is Admin
-    const isAdmin = () => {
-        return isAuthenticated && user && user.id === 1; // Assuming user with ID 1 is admin
-    };
 
     // Function to Fetch Artworks
     const fetchArtworks = async () => {
@@ -113,20 +85,9 @@ export const ArtworkProvider = ({ children }) => {
         }
     };
 
-    // Check user authentication status when the component mounts
-    useEffect(() => {
-        checkUser();
-    }, []);
-
-    // Fetch artworks after checking authentication
+    // Fetch artworks when the component mounts
     useEffect(() => {
         fetchArtworks();
-    }, [isAuthenticated]);
-
-    // Set up an interval to periodically check authentication status
-    useEffect(() => {
-        const interval = setInterval(checkUser, 5000); // Check every 5 seconds
-        return () => clearInterval(interval);
     }, []);
 
     return (
@@ -139,10 +100,6 @@ export const ArtworkProvider = ({ children }) => {
                 updateArtwork,
                 deleteArtwork,
                 refreshArtworks: fetchArtworks,
-                isAdmin,
-                user,
-                isAuthenticated,
-                checkUser
             }}
         >
             {children}

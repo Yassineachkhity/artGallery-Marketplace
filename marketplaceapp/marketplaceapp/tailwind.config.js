@@ -11,6 +11,9 @@ export default {
         'gradient': 'gradientBG 15s ease infinite',
         'float': 'float 6s ease-in-out infinite',
         'float-reverse': 'floatReverse 6s ease-in-out infinite',
+        'gradient-x': 'gradientX 10s ease infinite',
+        'fadeIn': 'fadeIn 2s ease-out forwards',
+        'fadeInDelayed': 'fadeIn 2s ease-out 1s forwards',
       },
       keyframes: {
         gradientBG: {
@@ -24,6 +27,10 @@ export default {
         floatReverse: {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(20px)' },
+        },
+        gradientX: {
+          '0%, 100%': { 'background-position': '0% 50%' },
+          '50%': { 'background-position': '100% 50%' },
         },
       },
       backgroundSize: {

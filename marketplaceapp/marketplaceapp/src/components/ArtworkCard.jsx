@@ -1,17 +1,10 @@
+// src/components/ArtworkCard.jsx
 import React from 'react';
-import { useArtworkContext } from '../context/ArtworkContext';
 
-const ArtworkCard = ({ artwork, onEdit }) => {
-    const { deleteArtwork, isAdmin, isAuthenticated } = useArtworkContext();
+const ArtworkCard = ({ artwork, onEdit, onDelete, isAdmin }) => {
 
-    const handleDelete = async () => {
-        if (window.confirm('Are you sure you want to delete this artwork?')) {
-            try {
-                await deleteArtwork(artwork.id);
-            } catch (error) {
-                console.error('Error deleting artwork:', error);
-            }
-        }
+    const handleDelete = () => {
+        onDelete(artwork.id);
     };
 
     return (
@@ -25,7 +18,7 @@ const ArtworkCard = ({ artwork, onEdit }) => {
                 <h3 className="text-xl font-semibold mb-2">{artwork.image_title}</h3>
                 <p className="text-gray-600 mb-4">{artwork.description}</p>
                 
-                {isAuthenticated && isAdmin() && (
+                {isAdmin && ( // Corrected conditional rendering
                     <div className="flex justify-end space-x-2">
                         <button
                             onClick={() => onEdit(artwork)}
